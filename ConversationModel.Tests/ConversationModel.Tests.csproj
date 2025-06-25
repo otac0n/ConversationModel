@@ -18,6 +18,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ConversationModel\ConversationModel.csproj" />
+    <ProjectReference Include="..\ConversationModel.Voices\ConversationModel.Voices.csproj" />
   </ItemGroup>
   <ItemGroup>
     <AdditionalFiles Include="..\stylecop.json" Link="stylecop.json" />
