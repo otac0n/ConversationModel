@@ -10,8 +10,8 @@ install:
 before_build:
   - dotnet restore
   - GitReleaseNotes . /AllTags /C breaking /O ReleaseNotes.md || exit 0
-build:
-  project: ConversationModel.sln
+build_script:
+  - dotnet build
 test_script:
   - OpenCover.Console.exe -target:dotnet.exe -targetargs:"test --configuration %CONFIGURATION% --no-build" -register:user -filter:"+[*]* -[*.Tests]*" -output:coverage.xml -oldStyle
 after_test:
