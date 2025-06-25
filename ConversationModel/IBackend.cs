@@ -11,7 +11,7 @@ namespace ConversationModel
     /// <summary>
     /// An abstract representation of an autocompletion backend.
     /// </summary>
-    public interface IBackend : IDisposable
+    public interface IBackend
     {
         /// <summary>
         /// Raised when a token is received.

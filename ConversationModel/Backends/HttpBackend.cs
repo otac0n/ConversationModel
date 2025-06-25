@@ -140,12 +140,6 @@ namespace ConversationModel.Backends
             }
         }
 
-        /// <inheritdoc/>
-        public void Dispose()
-        {
-            this.httpClient.Dispose();
-        }
-
         private class SerialRequestsWithTimeBufferHandler(TimeSpan interval) : DelegatingHandler(new HttpClientHandler())
         {
             private readonly SemaphoreSlim semaphore = new(1, 1);
