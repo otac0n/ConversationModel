@@ -10,8 +10,8 @@ conversation <IList<Response>> = r:Response* EOF { r }
 Response <Response> -export = characterResponse / codeResponse
 
 characterResponse <CharacterResponse>
-    = n:("" name<1,2,WS>) _ m:mood _ ":" _ t:text EOL? { new CharacterResponse(n, m, t) }
-    / n:("" name<1,2,WS>) _ ":" _ m:mood? _ t:text EOL? { new CharacterResponse(n, m.SingleOrDefault(), t) }
+    = n:("" name<1,2,WS>) _ m:mood _ ":" _ t:text EOL? { new CharacterResponse(n, t, m) }
+    / n:("" name<1,2,WS>) _ ":" _ m:mood? _ t:text EOL? { new CharacterResponse(n, t, m.SingleOrDefault()) }
 
 name = "" [^\[\]:` \t\n]+
 
