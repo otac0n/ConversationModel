@@ -8,7 +8,7 @@ namespace ConversationModel.Tests
     using System.Threading;
     using System.Threading.Channels;
     using System.Threading.Tasks;
-    using ConversationModel.Backends.LLama;
+    using ConversationModel.Backends.LLamaSharp;
     using LLama.Common;
     using NUnit.Framework;
 

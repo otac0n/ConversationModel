@@ -108,7 +108,7 @@ namespace ConversationModel.Backends.LLamaSharp
                         if (clean == true)
                         {
                             bufferIndex++;
-                            if (queue.Peek()!.Length >= bufferIndex)
+                            if (queue.Peek()!.Length <= bufferIndex)
                             {
                                 var emit = queue.Dequeue();
                                 buffer.Remove(0, emit.Length);
