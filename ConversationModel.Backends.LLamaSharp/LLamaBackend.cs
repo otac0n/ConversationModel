@@ -1,20 +1,21 @@
 ﻿// Copyright © John Gietzen. All Rights Reserved. This source is subject to the MIT license. Please see license.md for more information.
 
-namespace ConversationModel.Backends.LLama
+namespace ConversationModel.Backends.LLamaSharp
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
-    using System.Linq;
-    using System.Net.Http.Headers;
     using System.Text;
     using System.Threading;
     using System.Threading.Channels;
     using System.Threading.Tasks;
-    using global::LLama;
-    using global::LLama.Common;
-    using LoadTask = System.Threading.Tasks.Task<(global::LLama.LLamaWeights Weights, global::LLama.LLamaContext Context)>;
+    using LLama;
+    using LLama.Common;
+    using LoadTask = System.Threading.Tasks.Task<(LLama.LLamaWeights Weights, LLama.LLamaContext Context)>;
 
+    /// <summary>
+    /// Use LLamaSharp for autocompletion.
+    /// </summary>
     public class LLamaBackend : IBackend, IDisposable
     {
         private static readonly InferenceParams InferenceParams = new()
