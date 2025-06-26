@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConversationModel", "ConversationModel\ConversationModel.csproj", "{4DE5A74A-2A70-4243-A0FF-8B88672A67E9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConversationModel.Backends.LLamaSharp", "ConversationModel.Backends.LLamaSharp\ConversationModel.Backends.LLamaSharp.csproj", "{B8CEC9D9-AD9D-FBC3-FC90-AB2CF30073F9}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConversationModel.Tests", "ConversationModel.Tests\ConversationModel.Tests.csproj", "{EC20892C-FADB-4356-945F-B01603B4978D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConversationModel.Voices", "ConversationModel.Voices\ConversationModel.Voices.csproj", "{96A9C4B1-FB71-489D-B3A2-7486AB9E06CA}"
@@ -32,6 +34,10 @@ Global
 		{4DE5A74A-2A70-4243-A0FF-8B88672A67E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4DE5A74A-2A70-4243-A0FF-8B88672A67E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4DE5A74A-2A70-4243-A0FF-8B88672A67E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8CEC9D9-AD9D-FBC3-FC90-AB2CF30073F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8CEC9D9-AD9D-FBC3-FC90-AB2CF30073F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8CEC9D9-AD9D-FBC3-FC90-AB2CF30073F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8CEC9D9-AD9D-FBC3-FC90-AB2CF30073F9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EC20892C-FADB-4356-945F-B01603B4978D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EC20892C-FADB-4356-945F-B01603B4978D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC20892C-FADB-4356-945F-B01603B4978D}.Release|Any CPU.ActiveCfg = Release|Any CPU
