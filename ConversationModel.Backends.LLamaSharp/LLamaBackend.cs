@@ -4,12 +4,16 @@ namespace ConversationModel.Backends.LLama
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
+    using System.Linq;
+    using System.Net.Http.Headers;
     using System.Text;
     using System.Threading;
     using System.Threading.Channels;
     using System.Threading.Tasks;
     using global::LLama;
     using global::LLama.Common;
+    using LoadTask = System.Threading.Tasks.Task<(global::LLama.LLamaWeights Weights, global::LLama.LLamaContext Context)>;
 
     public class LLamaBackend : IBackend, IDisposable
     {
@@ -26,7 +30,7 @@ namespace ConversationModel.Backends.LLama
         };
 
         private readonly CancellationTokenSource disposeCancel;
-        private Task<(LLamaWeights, LLamaContext)>? loadTask;
+        private LoadTask? loadTask;
         private bool disposedValue;
 
         public LLamaBackend(ModelParams modelParams)
@@ -35,29 +39,96 @@ namespace ConversationModel.Backends.LLama
             this.loadTask = LoadAsync(modelParams, this.disposeCancel.Token);
         }
 
+        /// <inheritdoc/>
         public event EventHandler<TokenReceivedEventArgs>? TokenReceived;
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             this.Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
+        /// <inheritdoc/>
+        [SuppressMessage("Maintainability", "CA1513:Use ObjectDisposedException throw helper", Justification = "Fails definite assignment.")]
         public async Task GetNextResponseTokensAsync(IEnumerable<Message> messages, ChannelWriter<string> writer, CancellationToken cancel)
         {
-            var (_, context) = await this.loadTask.ConfigureAwait(false);
-            var executor = new InteractiveExecutor(context);
-
-            var prompt = new StringBuilder();
-            foreach (var message in messages)
+            if (this.loadTask is not LoadTask loadTask)
             {
-                prompt.Append(message.Content);
+                throw new ObjectDisposedException(typeof(LLamaBackend).FullName);
             }
 
-            await foreach (var text in executor.InferAsync(prompt.ToString(), InferenceParams, cancel).ConfigureAwait(false))
+            try
             {
-                this.TokenReceived?.Invoke(this, new(text));
-                await writer.WriteAsync(text, cancel).ConfigureAwait(false);
+                var (_, context) = await loadTask.ConfigureAwait(false);
+                var executor = new InteractiveExecutor(context);
+
+                var prompt = new StringBuilder();
+                foreach (var message in messages)
+                {
+                    prompt.Append(message.Content);
+                }
+
+                var queue = new Queue<string>();
+                var buffer = new StringBuilder();
+                var bufferIndex = 0;
+
+                await foreach (var token in executor.InferAsync(prompt.ToString(), InferenceParams, cancel).ConfigureAwait(false))
+                {
+                    queue.Enqueue(token);
+                    buffer.Append(token);
+
+                    bool? clean = true;
+                    while (bufferIndex < buffer.Length && clean == true)
+                    {
+                        var rest = buffer.ToString(bufferIndex, buffer.Length - bufferIndex);
+                        foreach (var stop in InferenceParams.AntiPrompts)
+                        {
+                            if (stop.Length > rest.Length && stop.StartsWith(rest, StringComparison.Ordinal))
+                            {
+                                clean = null;
+                                break;
+                            }
+                            else if (rest.StartsWith(stop, StringComparison.Ordinal))
+                            {
+                                clean = false;
+
+                                if (bufferIndex > 0)
+                                {
+                                    var emit = buffer.ToString(0, bufferIndex);
+                                    this.TokenReceived?.Invoke(this, new(emit));
+                                    await writer.WriteAsync(emit, cancel).ConfigureAwait(false);
+                                }
+
+                                break;
+                            }
+                        }
+
+                        if (clean == true)
+                        {
+                            bufferIndex++;
+                            if (queue.Peek()!.Length >= bufferIndex)
+                            {
+                                var emit = queue.Dequeue();
+                                buffer.Remove(0, emit.Length);
+                                bufferIndex -= emit.Length;
+                                this.TokenReceived?.Invoke(this, new(emit));
+                                await writer.WriteAsync(emit, cancel).ConfigureAwait(false);
+                            }
+                        }
+                    }
+
+                    if (clean == false)
+                    {
+                        break;
+                    }
+                }
+
+                writer.TryComplete();
+            }
+            catch (Exception error)
+            {
+                writer.TryComplete(error);
             }
         }
 
@@ -68,7 +139,7 @@ namespace ConversationModel.Backends.LLama
                 if (disposing)
                 {
                     this.disposeCancel.Cancel();
-                    if (this.loadTask is Task<(LLamaWeights, LLamaContext)> task)
+                    if (this.loadTask is LoadTask task)
                     {
                         try
                         {
@@ -93,7 +164,7 @@ namespace ConversationModel.Backends.LLama
             }
         }
 
-        private static async Task<(LLamaWeights Weights, LLamaContext Context)> LoadAsync(ModelParams modelParams, CancellationToken cancel)
+        private static async LoadTask LoadAsync(ModelParams modelParams, CancellationToken cancel)
         {
             LLamaWeights? weights = null;
             try

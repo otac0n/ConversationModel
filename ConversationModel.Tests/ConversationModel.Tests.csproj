@@ -9,6 +9,8 @@
     <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="LLamaSharp.Backend.Cuda12" Version="0.24.0" />
+    <PackageReference Include="LLamaSharp.Backend.Vulkan" Version="0.24.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageReference Include="nunit" Version="4.3.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="5.0.0">
@@ -18,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ConversationModel\ConversationModel.csproj" />
+    <ProjectReference Include="..\ConversationModel.Backends.LLamaSharp\ConversationModel.Backends.LLamaSharp.csproj" />
     <ProjectReference Include="..\ConversationModel.Voices\ConversationModel.Voices.csproj" />
   </ItemGroup>
   <ItemGroup>
