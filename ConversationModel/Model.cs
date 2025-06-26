@@ -150,7 +150,11 @@ namespace ConversationModel
             }
         }
 
-        private void Backend_TokenReceived(object? sender, TokenReceivedEventArgs e) => this.TokenReceived?.Invoke(sender, e);
+        private void Backend_TokenReceived(object? sender, TokenReceivedEventArgs e)
+        {
+            LogMessages.ReceivedToken(this.logger, e.Token);
+            this.TokenReceived?.Invoke(sender, e);
+        }
 
         private async Task ProcessNextResponsesAsync(CancellationToken cancel)
         {
@@ -259,6 +263,9 @@ namespace ConversationModel
 
             [LoggerMessage(EventId = 0, Level = LogLevel.Information, Message = "Processing responses failed.")]
             public static partial void ProcessingFailed(ILogger logger, Exception error);
+
+            [LoggerMessage(EventId = 0, Level = LogLevel.Information, Message = "Received token '{token}'.")]
+            public static partial void ReceivedToken(ILogger logger, string token);
 
             [LoggerMessage(EventId = 0, Level = LogLevel.Information, Message = "Token stream ended.")]
             public static partial void TokenStreamEnded(ILogger logger);

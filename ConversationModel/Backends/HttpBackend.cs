@@ -120,7 +120,6 @@ namespace ConversationModel.Backends
                         var tokens = content.GetString();
                         if (!string.IsNullOrEmpty(tokens))
                         {
-                            LogMessages.ReceivedTokens(this.logger, tokens);
                             this.TokenReceived?.Invoke(this, new TokenReceivedEventArgs(tokens));
                             await writer.WriteAsync(tokens, cancel).ConfigureAwait(false);
                         }
@@ -184,9 +183,6 @@ namespace ConversationModel.Backends
 
             [LoggerMessage(EventId = 0, Level = LogLevel.Information, Message = "Request to '{url}' complete.")]
             public static partial void RequestComplete(ILogger logger, Uri url);
-
-            [LoggerMessage(EventId = 0, Level = LogLevel.Information, Message = "Received tokens '{tokens}'.")]
-            public static partial void ReceivedTokens(ILogger logger, string tokens);
 
             [LoggerMessage(EventId = 0, Level = LogLevel.Information, Message = "Finished receiving tokens.")]
             public static partial void FinishedTokens(ILogger logger);
