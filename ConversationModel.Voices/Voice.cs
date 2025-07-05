@@ -54,9 +54,15 @@ namespace ConversationModel.Voices
 
             void IndexReached(int index, int length)
             {
+                if (index < 0 || index > mapping.Replaced.Length ||
+                    length < 0 || (index + length) > mapping.Replaced.Length)
+                {
+                    return;
+                }
+
                 var ix = mapping.MapOutputIndex(index);
                 var end = mapping.MapOutputIndex(index + length);
-                progress = ix;
+                progress = end;
                 this.InvokeIndexReached(text, ix, end - ix);
             }
 
