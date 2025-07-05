@@ -17,6 +17,7 @@ namespace ConversationModel.Voices
         private readonly ILogger<AzureCognitiveVoice> logger;
         private readonly string voiceName;
         private readonly SpeechSynthesizer synth;
+        private readonly CancellationTokenSource cancel = new();
         private Task? lastCancelTask;
 
         /// <summary>
@@ -43,6 +44,7 @@ namespace ConversationModel.Voices
         {
             if (disposing)
             {
+                this.cancel.Cancel();
                 this.synth.Dispose();
             }
         }
@@ -50,13 +52,17 @@ namespace ConversationModel.Voices
         /// <inheritdoc/>
         protected override async Task SayImplAsync(string text, Action<int, int> indexReached, CancellationToken cancel)
         {
+            var innerCancel = new CancellationTokenSource();
+            using var innerRegistration = cancel.Register(innerCancel.Cancel);
+            using var disposeRegistration = this.cancel.Token.Register(innerCancel.Cancel);
+
             if (this.lastCancelTask is Task cancelTask && !cancelTask.IsCompleted)
             {
                 LogMessages.WaitingOnCancelTask(this.logger, this.voiceName);
                 await cancelTask.ConfigureAwait(false);
             }
 
-            using var ctr = cancel.Register(() =>
+            using var ctr = innerCancel.Token.Register(() =>
             {
                 LogMessages.CancelingSpeaking(this.logger, this.voiceName);
                 this.lastCancelTask = this.synth.StopSpeakingAsync();
@@ -78,7 +84,7 @@ namespace ConversationModel.Voices
             {
                 this.synth.WordBoundary -= Synth_WordBoundary;
 
-                if (!cancel.IsCancellationRequested)
+                if (!innerCancel.IsCancellationRequested)
                 {
                     indexReached(text.Length, 0);
                 }
